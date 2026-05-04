@@ -1,3 +1,6 @@
+/*Design an FSM that has 1 input and 1 output. The o/p becomes 1 and remains 1 when at
+least two 0′s and two 1′s have occurred as i/p′s*/
+
 module fsm(input clk,rst,x,output y);
   parameter IDLE = 4'b0000;
   parameter S0 = 4'b0001;

@@ -1,0 +1,108 @@
+/*Draw a FSM that has an input "w" and an output "z".
+The design is a sequence detector that produces z = 1, when previous
+two values of w were 00 or 11; otherwise z = 0.
+After designing the FSM, write the RTL code and verify the same
+using a Verilog TB.*/
+
+module fsm(input clk,rst,x,output y);
+  parameter IDLE = 4'b0000;
+  parameter S0 = 4'b0001;
+  parameter S1 = 4'b0010;
+  parameter S00 = 4'b0011;
+  parameter S001 = 4'b0100;
+  parameter S11 = 4'b0101;
+  parameter S000 = 4'b0110;
+  parameter S110 = 4'b0111;
+  parameter S111 = 4'b1000;
+  
+  reg [3:0] ps,ns;
+  
+  always@(posedge clk)begin
+    if(rst)
+      ps<=IDLE;
+    else
+      ps <= ns;
+  end
+  
+  always@(*)begin
+    case(ps)
+      IDLE : ns = x?S1 : S0;
+      S0   : ns = x?S00:S1;
+      S1   : ns = x?S11:S0;
+      S00  : ns = x?S001:S000;
+      S001 : ns = x?S11:S0;
+      S11  : ns = x?S111:S110;
+      S000 : ns = x?S001 : S000;
+      S110 : ns = x?S1:S00;
+      S111 : ns = x?S111:S110;
+    endcase
+  end
+  
+  assign y = (ps == S001 || ps == S111 || ps == S110 || ps == S000)?1'b1:1'b0;
+endmodule
+
+  //testbench
+module tb;
+  reg clk ;
+  reg rst;
+  reg x;
+  wire y;
+  
+  fsm dut(clk,rst,x,y);
+  always #5 clk = ~clk;
+  
+  task initialize;
+    {clk,rst,x} = 0;
+  endtask
+  
+  task rst_dut;
+    begin
+    rst = 1;
+    #10;
+    rst = 0;
+    end
+  endtask
+  
+  task stimulus(input a);
+    begin
+      x = a;
+      #10;
+    end
+  endtask
+  
+  initial begin
+    $dumpfile("dump.vcd");
+    $dumpvars(0,tb);
+  end
+  
+  task finish;
+    begin
+    #200;
+    $finish;
+    end
+  endtask
+  
+  initial begin
+   initialize;
+    rst_dut;
+    stimulus(0);
+    stimulus(1);
+    stimulus(0);
+    stimulus(1);
+    stimulus(1);
+    stimulus(0);
+    stimulus(1);
+    stimulus(0);
+    stimulus(1);
+    stimulus(0);
+    stimulus(1);
+    stimulus(1);
+    stimulus(0);
+    stimulus(1);
+    finish;
+  end
+  
+  initial
+    $monitor("x  = %b y = %b",x,y);
+endmodule
+  

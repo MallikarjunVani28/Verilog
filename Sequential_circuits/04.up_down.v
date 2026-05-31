@@ -1,3 +1,5 @@
+// counter which counts even numbers in up counting and odd 
+numbers in down counting
 module up_down(input clk,rst,up_down,output reg [3:0] count);
   always@(posedge clk)begin
     if(rst)begin

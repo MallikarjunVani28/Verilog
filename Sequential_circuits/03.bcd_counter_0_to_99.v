@@ -1,3 +1,4 @@
+//.BCD counter counts from 00 to 99 and repeat
 module bcd_counter(input clk,rst,output reg [3:0]q1,q2);
   always@(posedge clk)begin
     if(rst)
